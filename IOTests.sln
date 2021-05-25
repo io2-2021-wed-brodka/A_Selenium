@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31229.75
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IOTests", "PageModels\PageModels.csproj", "{DDC89A49-B83F-46FD-83C9-B2CC87972BD1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChromeDriverTests", "ChromeDriverTests\ChromeDriverTests.csproj", "{EBD3DDFB-1F83-4BA7-9A28-6652077AED60}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DDC89A49-B83F-46FD-83C9-B2CC87972BD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDC89A49-B83F-46FD-83C9-B2CC87972BD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDC89A49-B83F-46FD-83C9-B2CC87972BD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDC89A49-B83F-46FD-83C9-B2CC87972BD1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBD3DDFB-1F83-4BA7-9A28-6652077AED60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBD3DDFB-1F83-4BA7-9A28-6652077AED60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBD3DDFB-1F83-4BA7-9A28-6652077AED60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBD3DDFB-1F83-4BA7-9A28-6652077AED60}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C3970F5F-434D-45A0-9A20-89EEC749A615}
+	EndGlobalSection
+EndGlobal
