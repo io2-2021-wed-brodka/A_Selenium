@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\IOTests\IOTests.csproj" />
+    <ProjectReference Include="..\PageModels\PageModels.csproj" />
   </ItemGroup>
 
 </Project>
