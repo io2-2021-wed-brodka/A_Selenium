@@ -13,6 +13,7 @@ namespace PageModels.UserTech
         // rented bike list
         private By rentedBikeEntryBy = By.XPath("//ul[@id='rented-bike-list']//li");
         private By rentedBikeIdBy = By.XPath(".//p");
+        private By rentedBikeIdTextBy = By.XPath("//ul[@id='rented-bike-list']//li//p");
         private By rentedBikeReturnButtonBy = By.XPath(".//button[@id='bike-return-button']");
         private By rentedBikeReportMalfunctionButtonBy = By.XPath(".//button[@id='report-malfunction-button']");
 
@@ -114,10 +115,12 @@ namespace PageModels.UserTech
         {
             try
             {
-                var rentedBikesRows = driver.FindElements(rentedBikeEntryBy);
-                var rentedBikesIds = rentedBikesRows.Select(r => r.FindElement(rentedBikeIdBy).Text);
-
+                var rentedBikesIds = driver.FindElements(rentedBikeIdTextBy).Select(r => r.Text);
                 return rentedBikesIds.Contains(bikeId);
+            }
+            catch (StaleElementReferenceException)
+            {
+                return false;
             }
             catch (NoSuchElementException)
             {
@@ -127,14 +130,24 @@ namespace PageModels.UserTech
 
         public void ReturnBike(string bikeId, string stationName)
         {
-            var rentedBikesRows = driver.FindElements(rentedBikeEntryBy);
-            var bikeReturnButtons = new Dictionary<string, IWebElement>();
-            foreach (var row in rentedBikesRows)
+            for (int i = 0; i < 5; i++)
             {
-                bikeReturnButtons.Add(row.FindElement(rentedBikeIdBy).Text, row.FindElement(rentedBikeReturnButtonBy));
+                try
+                {
+                    var rentedBikesRows = driver.FindElements(rentedBikeEntryBy);
+                    var bikeReturnButtons = new Dictionary<string, IWebElement>();
+                    foreach (var row in rentedBikesRows)
+                    {
+                        bikeReturnButtons.Add(row.FindElement(rentedBikeIdBy).Text, row.FindElement(rentedBikeReturnButtonBy));
+                    }
+                    bikeReturnButtons[bikeId].Click();
+                    break;
+                }
+                catch (StaleElementReferenceException)
+                {
+                    continue;
+                }
             }
-            bikeReturnButtons[bikeId].Click();
-
             var returnStations = new Dictionary<string, IWebElement>();
             var returnBikeRows = driver.FindElements(returnDialogRowBy);
             foreach (var row in returnBikeRows)
@@ -142,7 +155,7 @@ namespace PageModels.UserTech
                 returnStations.Add(row.FindElement(returnDialogTextBy).Text, row.FindElement(returnDialogButtonBy));
             }
             Thread.Sleep(500);
-            returnStations[stationName].Click();
+            returnStations[stationName].Click();            
         }
 
         public LoginPage LogOut()

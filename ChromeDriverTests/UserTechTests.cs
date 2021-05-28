@@ -17,7 +17,7 @@ namespace UserTech
 
         private IWebDriver driver;
 
-        private static string backendUrl = "http://localhost:8080/api";
+        private static string backendUrl = "http://localhost:8080";
         private static string userTechUrl = "";        
 
         private static string userUsername = "sampleUserTeamA";
@@ -58,7 +58,13 @@ namespace UserTech
         [TestInitialize]
         public void ChromeDriverInitialize()
         {
-            driver = new ChromeDriver();
+            ChromeOptions options = new();
+            options.AddArgument("test-type");
+            options.AddArgument("--start-maximized");
+            options.AddArgument("--disable-web-security");
+            options.AddArgument("--allow-running-insecure-content");
+
+            driver = new ChromeDriver(options);
             driver.Manage().Window.Maximize();
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(1);
         }
@@ -94,6 +100,43 @@ namespace UserTech
             Assert.IsTrue(isBikeRented);
 
             homePage.ReturnBike(rentedBikeId, stationName);
+        }
+
+        [TestMethod]
+        public void CannotReturnUnrentedBike()
+        {
+            string stationName = stationBikes.Keys.ElementAt(1);
+            string rentedBikeId = stationBikes.Values.ElementAt(1).ElementAt(1);
+
+            driver.Navigate().GoToUrl("http://localhost:3000/");
+
+            var loginPage = new LoginPage(driver);
+            var homePage = loginPage.loginValidUser(userUsername, userPassword);
+            Assert.ThrowsException<KeyNotFoundException>(() => homePage.ReturnBike(rentedBikeId, stationName));
+        }
+
+        [TestMethod]
+        public void CannotRentBikeFromEmptyStation()
+        {
+            string stationName = stationBikes.Keys.ElementAt(2);
+            var rentedBikeIds = stationBikes[stationName];
+
+            driver.Navigate().GoToUrl("http://localhost:3000/");
+
+            var loginPage = new LoginPage(driver);
+            var homePage = loginPage.loginValidUser(userUsername, userPassword);
+            foreach (var id in rentedBikeIds)
+            {
+                homePage.RentBike(id);
+            }
+
+            var bikesOnStations = homePage.ListBikesOnStations();
+            Assert.IsTrue(bikesOnStations[stationName].Count == 0);
+
+            foreach (var id in rentedBikeIds)
+            {
+                homePage.ReturnBike(id, stationName);
+            }
         }
 
         [TestMethod]
@@ -165,7 +208,7 @@ namespace UserTech
             
             bool dictionariesEqual = true;
 
-            Assert.IsTrue(stationBikes.Keys.ToHashSet().SetEquals(stationBikesUser.Keys.ToHashSet()));
+            Assert.IsTrue(stationBikes.Keys.All(k => stationBikesUser.Keys.Contains(k)));
 
             foreach (var (key, value) in stationBikes)
             {
