@@ -1,10 +1,10 @@
-﻿using OpenQA.Selenium;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using OpenQA.Selenium;
 
-namespace IOTests.Admin
+namespace PageModels.Admin
 {
-    class TechsPage : PageWithAdminNavigation
+    public class TechsPage : PageWithAdminNavigation
     {
         private IReadOnlyCollection<IWebElement> TechTableRows => driver.FindElements(By.XPath("//table[@id='techs-table']/tbody/tr"));
 
@@ -13,7 +13,7 @@ namespace IOTests.Admin
         private IWebElement AddTechPasswordField => driver.FindElement(By.Id("tech-password-field"));
         private IWebElement AddTechRepasswordField => driver.FindElement(By.Id("tech-repassword-field"));
         private IWebElement AddTechConfirmButton =>
-            driver.FindElement(By.XPath("//div[@id='add-bike-dialog']//span[contains(text(),'Add') and not(ancestor::div[contains(@style,'hidden')])]//parent::button"));
+            driver.FindElement(By.XPath("//div[@id='add-tech-dialog']//span[contains(text(),'Add') and not(ancestor::div[contains(@style,'hidden')])]//parent::button"));
 
         private Dictionary<string, IWebElement> TechUsernameDelete =>
             driver.FindElements(By.XPath("//table[@id='techs-table']/tbody/tr")).ToDictionary(k => k.FindElement(By.XPath("./td[1]")).Text, v => v.FindElement(By.XPath("./td[2]/button")));

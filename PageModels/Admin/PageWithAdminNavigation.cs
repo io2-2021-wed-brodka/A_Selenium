@@ -1,38 +1,48 @@
 ﻿using OpenQA.Selenium;
 
-namespace IOTests.Admin
+namespace PageModels.Admin
 {
-    class PageWithAdminNavigation
-    {
-        protected IWebDriver driver;
-        protected IWebElement NavigationDrawerBikes => driver.FindElement(By.Id("bikes-navigation"));
-        protected IWebElement NavigationDrawerTechs => driver.FindElement(By.Id("techs-navigation"));
-        protected IWebElement NavigationDrawerStations => driver.FindElement(By.Id("stations-navigation"));
-        protected IWebElement NavigationDrawerUsers => driver.FindElement(By.Id("user-navigation"));
+	public class PageWithAdminNavigation
+	{
+		protected IWebDriver driver;
+		protected IWebElement NavigationDrawerBikes => driver.FindElement(By.Id("bikes-navigation"));
+		protected IWebElement NavigationDrawerTechs => driver.FindElement(By.Id("techs-navigation"));
+		protected IWebElement NavigationDrawerStations => driver.FindElement(By.Id("stations-navigation"));
+		protected IWebElement NavigationDrawerUsers => driver.FindElement(By.Id("user-navigation"));
 
-        protected PageWithAdminNavigation(IWebDriver driver)
-        {
-            this.driver = driver;
-        }
+		protected PageWithAdminNavigation(IWebDriver driver)
+		{
+			this.driver = driver;
+		}
 
-        public BikesPage GoToBikePage()
-        {
-            return new BikesPage(driver);
-        }
+		public BikesPage GoToBikePage()
+		{
+			NavigationDrawerBikes.Click();
+			return new BikesPage(driver);
+		}
 
-        public StationsPage GoToStationsPage()
-        {
-            return new StationsPage(driver);
-        }
+		public StationsPage GoToStationsPage()
+		{
+			NavigationDrawerStations.Click();
+			return new StationsPage(driver);
+		}
 
-        public TechsPage GoToTechsPage()
-        {
-            return new TechsPage(driver);
-        }
+		public TechsPage GoToTechsPage()
+		{
+			NavigationDrawerTechs.Click();
+			return new TechsPage(driver);
+		}
 
-        public UsersPage GoToUsersPage()
-        {
-            return new UsersPage(driver);
-        }
-    }
+		public UsersPage GoToUsersPage()
+		{
+			NavigationDrawerUsers.Click();
+			return new UsersPage(driver);
+		}
+
+		public LoginPage Logout()
+		{
+			driver.FindElement(By.Id("logout-button")).Click();
+			return new LoginPage(driver);
+		}
+	}
 }

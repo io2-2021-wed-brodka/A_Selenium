@@ -1,44 +1,53 @@
-﻿using OpenQA.Selenium;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using OpenQA.Selenium;
 
-namespace IOTests.Admin
+namespace PageModels.Admin
 {
-    class UsersPage : PageWithAdminNavigation
-    {
-        private IReadOnlyCollection<IWebElement> UserTableRows => driver.FindElements(By.XPath("//table[@id='users-table']/tbody/tr"));
-        private Dictionary<string, IWebElement> UserActionButtons =>
-            driver.FindElements(By.XPath("//table[@id='users-table']/tbody/tr")).ToDictionary(k => k.FindElement(By.XPath("./td[1]")).Text, v => v.FindElement(By.XPath("./td[2]/button")));
+	public class UsersPage : PageWithAdminNavigation
+	{
+		private IReadOnlyCollection<IWebElement> UserTableRows =>
+			driver.FindElements(By.XPath("//table[@id='users-table']/tbody/tr"));
 
-        public UsersPage(IWebDriver driver) : base(driver) { }
+		private Dictionary<string, IWebElement> UserActionButtons =>
+			driver.FindElements(By.XPath("//table[@id='users-table']/tbody/tr")).ToDictionary(
+				k => k.FindElement(By.XPath("./td[1]")).Text, v => v.FindElement(By.XPath("./td[2]/button")));
 
-        public IReadOnlyList<string> ListUsers()
-        {
-            var ret = new List<string>();
+		public UsersPage(IWebDriver driver) : base(driver) {}
 
-            foreach (var row in UserTableRows)
-            {
-                ret.Add(row.FindElement(By.XPath("./td[1]")).Text);
-            }
+		public IReadOnlyList<string> ListUsers()
+		{
+			var ret = new List<string>();
 
-            return ret;
-        }
+			foreach (var row in UserTableRows)
+			{
+				ret.Add(row.FindElement(By.XPath("./td[1]")).Text);
+			}
 
-        public void BlockUser(string username)
-        {
-            var currentUsernamesAndActions = UserActionButtons;
-            if (currentUsernamesAndActions[username].Text == "Block") throw new ArgumentException("User already blocked");
-            currentUsernamesAndActions[username].Click();
-        }
+			return ret;
+		}
 
-        public void UnblockUser(string username)
-        {
-            var currentUsernamesAndActions = UserActionButtons;
-            if (currentUsernamesAndActions[username].Text == "Unblock") throw new ArgumentException("User not blocked");
-            currentUsernamesAndActions[username].Click();
-        }
-    }
+		public void BlockUser(string username)
+		{
+			var currentUsernamesAndActions = UserActionButtons;
+			if (currentUsernamesAndActions[username].Text == "UNBLOCK")
+				throw new ArgumentException("User already blocked");
+			currentUsernamesAndActions[username].Click();
+		}
+
+		public void UnblockUser(string username)
+		{
+			var currentUsernamesAndActions = UserActionButtons;
+			if (currentUsernamesAndActions[username].Text == "BLOCK")
+				throw new ArgumentException("User not blocked");
+			currentUsernamesAndActions[username].Click();
+		}
+
+		public bool IsUserBlocked(string username)
+		{
+			string text = UserActionButtons[username].Text;
+			return UserActionButtons[username].Text.Equals("UNBLOCK");
+		}
+	}
 }

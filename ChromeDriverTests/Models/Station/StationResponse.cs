@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ChromeDriverTests.Models
 {
-    class StationResponse
+    public class StationResponse
     {
         public string Id { get; set; }
         public string Name { get; set; }

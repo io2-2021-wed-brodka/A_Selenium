@@ -17,10 +17,10 @@ namespace UserTech
 
         private IWebDriver driver;
 
-        private static string backendUrl = "http://localhost:8080/api";
+        private static string backendUrl = "http://localhost:8080/";
         private static string userTechUrl = "";        
 
-        private static string userUsername = "sampleUserTeamA";
+        private static string userUsername = "sampleUserTeamA1";
         private static string userPassword = "sampleUserPassword";
 
         private static string adminUsername = "admin";
@@ -28,32 +28,32 @@ namespace UserTech
 
         private static readonly Dictionary<string, ISet<string>> stationBikes = new Dictionary<string, ISet<string>>();
 
-        [AssemblyInitialize]
-        public static async Task HttpDriverInitializeAsync(TestContext context)
-        {
-            var databaseSetup = new SetupMethods(backendUrl);
-
-            await databaseSetup.RegisterUser(userUsername, userPassword);
-            await databaseSetup.LoginAdmin(adminUsername, adminPassword);
-            var stations = await databaseSetup.AddStation(new[]{
-                "TestStation1 TeamA",
-                "TestStation2 TeamA",
-                "TestStation3 TeamA",
-                "TestStation4 TeamA",
-                "TestStation5 TeamA",
-            });
-
-            foreach (var station in stations)
-            {
-                stationBikes.Add(station.Name, new HashSet<string>());
-                for (int i = 0; i < 2; i++)
-                {
-                    stationBikes[station.Name].Add((await databaseSetup.AddBike(station.Id)).Id);
-                }
-            }
-
-            Console.WriteLine("Initiated!");
-        }
+        //[AssemblyInitialize]
+        //public static async Task HttpDriverInitializeAsync(TestContext context)
+        //{
+            // var databaseSetup = new SetupMethods(backendUrl);
+            //
+            // await databaseSetup.RegisterUser(userUsername, userPassword);
+            // await databaseSetup.LoginAdmin(adminUsername, adminPassword);
+            // var stations = await databaseSetup.AddStation(new[]{
+            //     "TestStation1 TeamA",
+            //     "TestStation2 TeamA",
+            //     "TestStation3 TeamA",
+            //     "TestStation4 TeamA",
+            //     "TestStation5 TeamA",
+            // });
+            //
+            // foreach (var station in stations)
+            // {
+            //     stationBikes.Add(station.Name, new HashSet<string>());
+            //     for (int i = 0; i < 2; i++)
+            //     {
+            //         stationBikes[station.Name].Add((await databaseSetup.AddBike(station.Id)).Id);
+            //     }
+            // }
+            //
+            // Console.WriteLine("Initiated!");
+        //}
 
         [TestInitialize]
         public void ChromeDriverInitialize()
@@ -61,6 +61,7 @@ namespace UserTech
             driver = new ChromeDriver();
             driver.Manage().Window.Maximize();
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(1);
+            driver.Navigate().GoToUrl( "http://localhost:3000/" );
         }
 
 
@@ -69,8 +70,6 @@ namespace UserTech
         {
             string testUsername = Path.GetRandomFileName().Replace(".", "");
             string testPassword = Path.GetRandomFileName().Replace(".", "");
-
-        driver.Navigate().GoToUrl("http://localhost:3000/");
 
             var loginPage = new LoginPage(driver);
             var registerPage = loginPage.GoToCreateAccountPage();
@@ -85,8 +84,6 @@ namespace UserTech
         {
             string rentedBikeId = stationBikes.Values.ElementAt(1).ElementAt(1);
 
-            driver.Navigate().GoToUrl("http://localhost:3000/");
-
             var loginPage = new LoginPage(driver);
             var homePage = loginPage.loginValidUser(userUsername, userPassword);
             var stationName = homePage.RentBike(rentedBikeId);
@@ -100,8 +97,6 @@ namespace UserTech
         public void RentedBikeDisappearsFromStationTest()
         {
             string rentedBikeId = stationBikes.Values.ElementAt(2).ElementAt(1);
-
-            driver.Navigate().GoToUrl("http://localhost:3000/");
 
             var loginPage = new LoginPage(driver);
             var homePage = loginPage.loginValidUser(userUsername, userPassword);
@@ -118,8 +113,6 @@ namespace UserTech
         [TestMethod]
         public void StationsVisibleTest()
         {
-            driver.Navigate().GoToUrl("http://localhost:3000/");
-
             var loginPage = new LoginPage(driver);
             var homePage = loginPage.loginValidUser(userUsername, userPassword);
             var stationsCount = homePage.GetStationCount();
@@ -130,8 +123,6 @@ namespace UserTech
         [TestMethod]
         public void LoginInvalidUserTest()
         {
-            driver.Navigate().GoToUrl("http://localhost:3000/");
-
             var loginPage = new LoginPage(driver);
             loginPage.loginValidUser("invalid", "user");
 
@@ -143,8 +134,6 @@ namespace UserTech
         [TestMethod]
         public void LogoutTest()
         {
-            driver.Navigate().GoToUrl("http://localhost:3000/");
-
             var loginPage = new LoginPage(driver);
             var homePage = loginPage.loginValidUser(userUsername, userPassword);
             loginPage = homePage.LogOut();
@@ -157,8 +146,6 @@ namespace UserTech
         [TestMethod]
         public void ListBikeOnStations()
         {
-            driver.Navigate().GoToUrl("http://localhost:3000/");
-
             var loginPage = new LoginPage(driver);
             var homePage = loginPage.loginValidUser(userUsername, userPassword);
             var stationBikesUser = homePage.ListBikesOnStations();
@@ -193,8 +180,6 @@ namespace UserTech
             string stationName = stationBikes.Keys.First();
             string rentedBikeId = stationBikes[stationName].First();
 
-            driver.Navigate().GoToUrl("http://localhost:3000/");
-
             var loginPage = new LoginPage(driver);
             var homePage = loginPage.loginValidUser(userUsername, userPassword);
             homePage.RentBike(rentedBikeId);
@@ -208,8 +193,6 @@ namespace UserTech
         {
             string stationName = stationBikes.Keys.First();
             string rentedBikeId = stationBikes[stationName].First();            
-
-            driver.Navigate().GoToUrl("http://localhost:3000/");
 
             var loginPage = new LoginPage(driver);
             var homePage = loginPage.loginValidUser(userUsername, userPassword);

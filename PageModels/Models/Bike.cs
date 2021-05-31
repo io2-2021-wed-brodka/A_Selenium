@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace IOTests.Models
 {
-    class Bike
+    public class Bike
     {
         public string BikeName { get; set; }
         public string StationName { get; set; }
