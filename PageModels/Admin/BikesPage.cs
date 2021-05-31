@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using IOTests.Models;
 using OpenQA.Selenium;
 
@@ -14,8 +15,8 @@ namespace PageModels.Admin
 		private IWebElement AddBikeButton => driver.FindElement(By.Id("add-bike-button"));
 		private IWebElement AddBikeStationSelect => driver.FindElement(By.Id("station-select"));
 
-		private IDictionary<string, IWebElement> AddBikeSelectableStations =>
-			driver.FindElements(By.XPath("//li[@id='selectable-station']")).ToDictionary(e => e.Text);
+		private ILookup<string, IWebElement> AddBikeSelectableStations =>
+			driver.FindElements(By.XPath("//li[@id='selectable-station']")).ToLookup(e => e.Text);
 
 		private IWebElement AddBikeConfirmButton =>
 			driver.FindElement(By.XPath(
@@ -50,8 +51,8 @@ namespace PageModels.Admin
 		{
 			AddBikeButton.Click();
 			AddBikeStationSelect.Click();
-
-			AddBikeSelectableStations[stationName].Click();
+			Thread.Sleep(200);
+			AddBikeSelectableStations[stationName].First().Click();
 			AddBikeConfirmButton.Click();
 		}
 

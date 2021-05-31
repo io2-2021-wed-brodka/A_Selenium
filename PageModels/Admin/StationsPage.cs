@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using IOTests.Models;
 using OpenQA.Selenium;
 using PageModels.Models;
 
@@ -56,10 +55,6 @@ namespace PageModels.Admin
 
 			foreach (var row in StationTableRows)
 			{
-				// var name = row.FindElement(By.XPath("./th")).Text.Replace("Station ", "");
-				// var status = row.FindElement(By.XPath("./td[2]")).Text;
-				// int count = int.Parse(row.FindElement(By.XPath("./td[3]")).Text);
-
 				ret.Add(new Station
 				{
 					Name = row.header.FindElement(By.XPath("./th")).Text.Replace("Station ", ""),
@@ -71,18 +66,13 @@ namespace PageModels.Admin
 			return ret;
 		}
 
-		public void ExpandStationDetails(string stationName)
-		{
-			StationActions[stationName].expand.Click();
-		}
-
 		public StationDetails GetStationDetails(string stationName)
 		{
 			var stationRow = StationTableRows.First(
 				r => r.header.FindElement(By.XPath("./th")).Text.Contains(stationName)
 			);
 
-			ExpandStationDetails(stationName);
+			ToggleStationDetailsCollapse(stationName);
 			Thread.Sleep(200);
 
 			var bikesLimitSpan = stationRow.details.FindElement(
@@ -90,11 +80,15 @@ namespace PageModels.Admin
 			);
 			string bikeLimitStr = bikesLimitSpan.Text.Replace("Bike limit: ", "");
 
-			return new StationDetails()
+			var stationDetails = new StationDetails()
 			{
 				StationName = stationName,
-				BikesLimit = int.Parse(bikeLimitStr)
+				BikesLimit = int.Parse(bikeLimitStr),
+				RelatedMalfunctions = ListVisibleMalfunctions()
 			};
+
+			ToggleStationDetailsCollapse(stationName);
+			return stationDetails;
 		}
 
 		public void AddStation(string stationName)
@@ -144,6 +138,29 @@ namespace PageModels.Admin
 		{
 			var bike = ListStations().First(b => b.Name.Equals(stationName));
 			return bike.Status.Equals("active") && StationActions[stationName].block.Text.Equals("BLOCK");
+		}
+
+		private List<Malfunction> ListVisibleMalfunctions()
+		{
+			var malfunctionTableRows = driver.FindElements(By.XPath("//table[@id='malfunctions-table']/tbody/tr"));
+			var malfunctions = new List<Malfunction>();
+
+			foreach (var row in malfunctionTableRows)
+			{
+				var malfunction = new Malfunction()
+				{
+					Id = row.FindElement(By.XPath("./td[2]")).Text,
+					Description = row.FindElement(By.XPath("./td[3]")).Text
+				};
+				malfunctions.Add(malfunction);
+			}
+
+			return malfunctions;
+		}
+
+		private void ToggleStationDetailsCollapse(string stationName)
+		{
+			StationActions[stationName].expand.Click();
 		}
 	}
 }
