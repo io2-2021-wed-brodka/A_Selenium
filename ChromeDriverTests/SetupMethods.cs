@@ -3,6 +3,7 @@ using ChromeDriverTests.Models;
 using ChromeDriverTests.Models.Bike;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -165,6 +166,26 @@ namespace ChromeDriverTests
 			stationsRespone.EnsureSuccessStatusCode();
 
 			return await stationsRespone.Content.ReadFromJsonAsync<StationListResponse>();
+		}
+
+		public async Task<IDictionary<string, HashSet<string>>> GetAllBikes()
+		{
+			var userRegisterRequestMessage = new HttpRequestMessage
+			{
+				Method = HttpMethod.Get,
+				RequestUri = new Uri(backendUrl + "/bikes")
+			};
+			userRegisterRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AdminToken);
+
+			using var userRegisterResponse = await httpClient.SendAsync(userRegisterRequestMessage);
+			userRegisterResponse.EnsureSuccessStatusCode();
+			using var userRegisterContent = userRegisterResponse.Content;
+			var stationsResponse = await userRegisterContent.ReadFromJsonAsync<Bikes>();
+			return stationsResponse.bikes.GroupBy(
+					b => b.Station.Name, b => b,
+					(key, g) => new { stationName = key, bikes = g.Select(b => b.Id).ToHashSet() }
+				)
+				.ToDictionary(k => k.stationName, v => v.bikes);
 		}
 	}
 }

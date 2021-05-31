@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using IOTests.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PageModels.Admin;
 
@@ -7,6 +10,21 @@ namespace ChromeDriverTests.Admin
 	[TestClass]
 	public class BikesAdminTests : AdminTests
 	{
+		private static readonly List<string> bikesInDB = new List<string>();
+
+		[ClassInitialize]
+		public static async Task InitializeBikesTests(TestContext context)
+		{
+			var setup = new SetupMethods(backendUrl);
+			await setup.LoginAdmin(adminUsername, adminPassword);
+
+			var bikesMap = await setup.GetAllBikes();
+			foreach (var bikeSet in bikesMap.Values)
+			{
+				bikesInDB.AddRange(bikeSet);
+			}
+		}
+
 		// [TestMethod]
 		// public void AddBikeTest()
 		// {
@@ -22,6 +40,19 @@ namespace ChromeDriverTests.Admin
 		//
 		// 	Assert.AreEqual(bikesBefore.Count() + 1, bikesAfter.Count());
 		// }
+
+		[TestMethod]
+		public void ListBikesTest()
+		{
+			var loginPage = new LoginPage(driver);
+			var bikesPage = loginPage.LoginValidAdmin(adminUsername, adminPassword);
+			var bikesList = bikesPage.ListBikes();
+
+			foreach (string bikeId in bikesInDB)
+			{
+				Assert.IsTrue(bikesList.Any(bike => bike.BikeName.Equals($"Bike {bikeId}")));
+			}
+		}
 
 		[TestMethod]
 		public void BlockBikeTest()

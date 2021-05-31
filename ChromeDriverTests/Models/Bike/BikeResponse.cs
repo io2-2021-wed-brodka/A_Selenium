@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ChromeDriverTests.Models.Bike
+﻿namespace ChromeDriverTests.Models.Bike
 {
-    class BikeResponse
+	public class Bikes
+	{
+		public BikeResponse[] bikes { get; set; }
+	}
+    public class BikeResponse
     {
         public string Id { get; set; }
         public StationResponse Station { get; set; }
