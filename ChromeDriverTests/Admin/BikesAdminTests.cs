@@ -12,6 +12,7 @@ namespace ChromeDriverTests.Admin
 	{
 		private static readonly List<string> bikesInDB = new List<string>();
 		private static readonly List<string> stationNamesInDB = new List<string>();
+		private static string bikeToDelete;
 
 		[ClassInitialize]
 		public static async Task InitializeBikesTests(TestContext context)
@@ -27,6 +28,9 @@ namespace ChromeDriverTests.Admin
 			{
 				bikesInDB.AddRange(bikeSet);
 			}
+
+			bikeToDelete = bikesInDB.Last();
+			bikesInDB.Remove(bikeToDelete);
 		}
 
 		[TestMethod]
@@ -52,83 +56,84 @@ namespace ChromeDriverTests.Admin
 			var loginPage = new LoginPage(driver);
 			var bikesPage = loginPage.LoginValidAdmin(adminUsername, adminPassword);
 			Thread.Sleep(300);
-			
+
 			var bikesList = bikesPage.ListBikes();
-		
+			Thread.Sleep(200);
+
 			foreach (string bikeId in bikesInDB)
 			{
 				Assert.IsTrue(bikesList.Any(bike => bike.BikeName.Equals($"Bike {bikeId}")));
 			}
 		}
-		
+
 		[TestMethod]
 		public void BlockBikeTest()
 		{
 			var loginPage = new LoginPage(driver);
 			var bikesPage = loginPage.LoginValidAdmin(adminUsername, adminPassword);
 			var bikesList = bikesPage.ListBikes();
-		
+
 			var bike = bikesList[0];
 			var bikeId = bike.BikeName.Replace("Bike ", "");
-		
+
 			if (bike.Status.Equals("blocked"))
 				bikesPage.UnblockBike(bikeId);
-		
+
 			bikesPage.BlockBike(bikeId);
-		
+
 			Assert.IsTrue(bikesPage.IsBikeBlocked(bikeId));
 		}
-		
+
 		[TestMethod]
 		public void UnblockBikeTest()
 		{
 			var loginPage = new LoginPage(driver);
 			var bikesPage = loginPage.LoginValidAdmin(adminUsername, adminPassword);
 			var bikesList = bikesPage.ListBikes();
-		
+
 			var bike = bikesList[0];
 			var bikeId = bike.BikeName.Replace("Bike ", "");
-		
+
 			if (bike.Status.Equals("available"))
 				bikesPage.BlockBike(bikeId);
-		
+
 			bikesPage.UnblockBike(bikeId);
-		
+
 			Assert.IsTrue(bikesPage.IsBikeUnblocked(bikeId));
 		}
-		
+
 		[TestMethod]
 		public void DeleteUnblockedBikeTest()
 		{
 			var loginPage = new LoginPage(driver);
 			var bikesPage = loginPage.LoginValidAdmin(adminUsername, adminPassword);
-		
+
 			var bike = bikesPage.ListBikes()[0];
 			var bikeId = bike.BikeName.Replace("Bike ", "");
-		
+
 			if (bike.Status.Equals("blocked"))
 				bikesPage.UnblockBike(bikeId);
-		
+
 			bikesPage.DeleteBike(bikeId);
-		
+
 			bool bikeVisible = bikesPage.ListBikes().Any(b => b.BikeName.Equals($"Bike {bikeId}"));
 			Assert.IsTrue(bikeVisible);
 		}
-		
+
 		[TestMethod]
 		public void DeleteBlockedBikeTest()
 		{
 			var loginPage = new LoginPage(driver);
 			var bikesPage = loginPage.LoginValidAdmin(adminUsername, adminPassword);
-		
-			var bike = bikesPage.ListBikes()[0];
+
+			var bike = bikesPage.ListBikes().First(b => b.BikeName.Equals($"Bike {bikeToDelete}"));
 			var bikeId = bike.BikeName.Replace("Bike ", "");
-		
+
 			if (bike.Status.Equals("available"))
 				bikesPage.BlockBike(bikeId);
-		
+
 			bikesPage.DeleteBike(bikeId);
-		
+
 			bool bikeVisible = bikesPage.ListBikes().Any(b => b.BikeName.Equals($"Bike {bikeId}"));
 			Assert.IsFalse(bikeVisible);
 		}

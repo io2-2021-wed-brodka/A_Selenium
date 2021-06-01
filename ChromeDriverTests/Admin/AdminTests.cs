@@ -24,5 +24,11 @@ namespace ChromeDriverTests.Admin
 			driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(1);
 			driver.Navigate().GoToUrl(adminUrl);
 		}
+
+		[TestCleanup]
+		public void ChromeDriverCleanup()
+		{
+			driver.Quit();
+		}
 	}
 }
