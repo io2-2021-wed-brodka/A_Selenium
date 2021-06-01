@@ -149,7 +149,7 @@ namespace PageModels.Admin
 			{
 				var malfunction = new Malfunction()
 				{
-					Id = row.FindElement(By.XPath("./td[2]")).Text,
+					Id = row.FindElement(By.XPath("./td[1]")).Text,
 					Description = row.FindElement(By.XPath("./td[3]")).Text
 				};
 				malfunctions.Add(malfunction);
