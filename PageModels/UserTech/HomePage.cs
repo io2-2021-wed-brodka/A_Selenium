@@ -9,11 +9,14 @@ namespace PageModels.UserTech
 {
     public class HomePage
     {
-        private IWebDriver driver;        
+        private IWebDriver driver;
+        // tabs
+        private By techTabBy = By.Id("tech-page");
+
         // rented bike list
         private By rentedBikeEntryBy = By.XPath("//ul[@id='rented-bike-list']//li");
-        private By rentedBikeIdBy = By.XPath(".//p");
-        private By rentedBikeIdTextBy = By.XPath("//ul[@id='rented-bike-list']//li//p");
+        private By rentedBikeIdBy = By.XPath(".//span");
+        private By rentedBikeIdTextBy = By.XPath("//ul[@id='rented-bike-list']//li//span");
         private By rentedBikeReturnButtonBy = By.XPath(".//button[@id='bike-return-button']");
         private By rentedBikeReportMalfunctionButtonBy = By.XPath(".//button[@id='report-malfunction-button']");
 
@@ -23,7 +26,8 @@ namespace PageModels.UserTech
 
         private By stationBikeRowBy = By.XPath(".//div[contains(@class, 'MuiCollapse-entered')]//li");
         private By stationBikeRowTextBy = By.XPath(".//div[@id='bike-id']/span");
-        private By stationBikeRowButtonBy = By.XPath(".//button");
+        private By stationBikeRowRentButtonBy = By.XPath(".//button[@id='rent-button']");
+        private By stationBikeRowBookButtonBy = By.XPath(".//button[@id='reservation-button']");
 
         private By rentDialogYesButtonBy = By.XPath("//span[contains(text(),'Yes') and not(ancestor::div[contains(@style,'hidden')])]//parent::button");
         
@@ -34,9 +38,9 @@ namespace PageModels.UserTech
         private By logoutButtonBy = By.Id("logout-topbar-button");
 
         private By reportMalfunctionDialogReportButtonBy = By.XPath("//span[contains(text(),'Report') and not(ancestor::div[contains(@style,'hidden')])]//parent::button");
-        private By reportMalfunctionDialogTextfieldBy = By.XPath("//div[@id='report-malfunction-dialog' and not(contains(@style,'visibility: hidden'))]//textarea[not(contains(@style,'visibility: hidden'))]");
+        private By reportMalfunctionDialogTextfieldBy = By.XPath("//*[not(contains(@style,'visibility: hidden'))]//textarea[not(contains(@style,'visibility: hidden'))]");
 
-        private By welcomeTextBy = By.Id("welcome-text");
+        private By welcomeTextBy = By.Id("welcome-text");        
 
         public HomePage(IWebDriver driver)
         {
@@ -80,28 +84,24 @@ namespace PageModels.UserTech
         }
 
         public string RentBike(string bikeId)
-        {
+        {            
             var ret = new Dictionary<string, (IWebElement rentButton, string stationName)>();
             var element = driver.FindElement(stationListBy);
             var stations = element.FindElements(stationBy);
             foreach (var station in stations)
             {
-                var stationName = station.Text;
+                var stationName = station.Text;                
                 station.Click();
                 foreach (var stationRow in station.FindElements(stationBikeRowBy))
                 {
-                    ret.Add(stationRow.FindElement(stationBikeRowTextBy).Text, (stationRow.FindElement(stationBikeRowButtonBy), stationName));
+                    ret.Add(stationRow.FindElement(stationBikeRowTextBy).Text, (stationRow.FindElement(stationBikeRowRentButtonBy), stationName));
                 }                
             }
 
-            var rentButton = ret[bikeId].rentButton;
-            var actions = new Actions(driver);
-            actions.MoveToElement(rentButton);
-            actions.Perform();
+            var rentButton = ret[bikeId].rentButton;                        
             rentButton.Click();
-            var yesButton = driver.FindElement(rentDialogYesButtonBy);            
-            actions.MoveToElement(yesButton);
-            actions.Perform();
+
+            var yesButton = driver.FindElement(rentDialogYesButtonBy);                                   
             yesButton.Click();
 
             foreach (var station in stations)
@@ -164,7 +164,7 @@ namespace PageModels.UserTech
             return new LoginPage(driver);
         }
 
-        public void ReportMalfunction(string bikeId, string description)
+        public void ReportMalfunction(string bikeId, string description, string stationName)
         {
             var rentedBikesRows = driver.FindElements(rentedBikeEntryBy);
             var bikeReturnButtons = new Dictionary<string, IWebElement>();
@@ -175,7 +175,49 @@ namespace PageModels.UserTech
             bikeReturnButtons[bikeId].Click();
 
             driver.FindElement(reportMalfunctionDialogTextfieldBy).SendKeys(description);
-            driver.FindElement(reportMalfunctionDialogReportButtonBy).Click();
+
+            var returnStations = new Dictionary<string, IWebElement>();
+            var returnBikeRows = driver.FindElements(returnDialogRowBy);
+            foreach (var row in returnBikeRows)
+            {
+                returnStations.Add(row.FindElement(returnDialogTextBy).Text, row.FindElement(returnDialogButtonBy));
+            }
+            Thread.Sleep(500);
+            returnStations[stationName].Click();
+        }
+
+        public TechPage MoveToTechTab()
+        {
+            driver.FindElement(techTabBy).Click();
+            return new TechPage(driver);
+        }
+
+        public void ReserveBike(string bikeId)
+        {
+            var ret = new Dictionary<string, (IWebElement reserveButton, string stationName)>();
+            var element = driver.FindElement(stationListBy);
+            var stations = element.FindElements(stationBy);
+            foreach (var station in stations)
+            {
+                var stationName = station.Text;
+                station.Click();
+                foreach (var stationRow in station.FindElements(stationBikeRowBy))
+                {
+                    ret.Add(stationRow.FindElement(stationBikeRowTextBy).Text, (stationRow.FindElement(stationBikeRowBookButtonBy), stationName));
+                }
+            }
+
+            ret[bikeId].reserveButton.Click();            
+        }
+
+        public void CancelBikeReservation(string bikeId)
+        {
+
+        }
+
+        public void RentReservedBike(string bikeId)
+        {
+
         }
     }
 }

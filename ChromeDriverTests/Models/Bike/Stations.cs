@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace ChromeDriverTests.Models.Bike
 {
-    public class BikeResponse
+    public class Bikes
     {
-        public string Id { get; set; }
-        public StationResponse Station { get; set; }
-        public string Status { get; set; }
+        public BikeResponse[] bikes { get; set; }
     }
 }

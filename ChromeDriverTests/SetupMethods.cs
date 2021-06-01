@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -31,9 +32,43 @@ namespace ChromeDriverTests
             };
         }
 
+        public async Task<ICollection<StationResponse>> GetAllStations()
+        {
+            var userRegisterRequestMessage = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(backendUrl + "/stations")
+            };
+            userRegisterRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AdminToken);
+
+            using var userRegisterResponse = await httpClient.SendAsync(userRegisterRequestMessage);
+            userRegisterResponse.EnsureSuccessStatusCode();
+            using var userRegisterContent = userRegisterResponse.Content;
+            var stationsResponse = await userRegisterContent.ReadFromJsonAsync<Stations>();
+            return stationsResponse.stations;
+        }
+
+        public async Task<IDictionary<string, HashSet<string>>> GetAllBikes()
+        {
+            var userRegisterRequestMessage = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(backendUrl + "/bikes")
+            };
+            userRegisterRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AdminToken);
+
+            using var userRegisterResponse = await httpClient.SendAsync(userRegisterRequestMessage);
+            userRegisterResponse.EnsureSuccessStatusCode();
+            using var userRegisterContent = userRegisterResponse.Content;
+            var stationsResponse = await userRegisterContent.ReadFromJsonAsync<Bikes>();
+            return stationsResponse.bikes.GroupBy(b => b.Station.Name, b => b, (key, g) => new { stationName = key, bikes = g.Select(b => b.Id).ToHashSet() })
+                .ToDictionary(k=> k.stationName, v => v.bikes);
+        }
+
+
         public async Task RegisterUser(string userUsername, string userPassword)
         {
-            var newUser = new LoginRequest
+            var newUser = new
             {
                 Login = userUsername,
                 Password = userPassword
@@ -56,7 +91,7 @@ namespace ChromeDriverTests
 
         public async Task LoginAdmin(string adminUsername, string adminPassword)
         {
-            var newUser = new LoginRequest
+            var newUser = new
             {
                 Login = adminUsername,
                 Password = adminPassword
@@ -77,12 +112,32 @@ namespace ChromeDriverTests
             AdminToken = registerResponse.Token;
         }
 
+        public async Task AddTech(string techUsername, string techPassword)
+        {
+            var newTech = new 
+            {
+                Name = techUsername,
+                Password = techPassword
+            };
+
+            var userRegisterRequestMessage = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                Content = new StringContent(JsonSerializer.Serialize(newTech, options: options), Encoding.UTF8, "application/json"),
+                RequestUri = new Uri(backendUrl + "/techs")
+            };
+            userRegisterRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AdminToken);
+
+            using var userRegisterResponse = await httpClient.SendAsync(userRegisterRequestMessage);
+            userRegisterResponse.EnsureSuccessStatusCode();            
+        }
+
         public async Task<ICollection<StationResponse>> AddStation(IEnumerable<string> stationNames)
         {
             var responses = new List<StationResponse>();
             foreach (var stationName in stationNames)
             {
-                var newStation = new StationRequest
+                var newStation = new
                 {
                     Name = stationName,                    
                 };
@@ -105,10 +160,10 @@ namespace ChromeDriverTests
 
         public async Task<BikeResponse> AddBike(string stationId)
         {   
-            var newBike = new BikeRequest
+            var newBike = new
             {
                 StationId = stationId,
-            };
+            };            
 
             var addBikeRequestMessage = new HttpRequestMessage
             {
