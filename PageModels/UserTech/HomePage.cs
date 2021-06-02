@@ -3,6 +3,7 @@ using OpenQA.Selenium.Interactions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace PageModels.UserTech
@@ -39,6 +40,10 @@ namespace PageModels.UserTech
 
         private By reportMalfunctionDialogReportButtonBy = By.XPath("//span[contains(text(),'Report') and not(ancestor::div[contains(@style,'hidden')])]//parent::button");
         private By reportMalfunctionDialogTextfieldBy = By.XPath("//*[not(contains(@style,'visibility: hidden'))]//textarea[not(contains(@style,'visibility: hidden'))]");
+
+        private By reservationListRowsBy = By.XPath("//*[@id='reservations-list']//li");
+        private By cancelReservationButtonBy = By.XPath(".//button[@id='cancel-reservation-button']");
+        private By rentReservedButtonBy = By.XPath(".//button[@id='rent-reserved-button']");
 
         private By welcomeTextBy = By.Id("welcome-text");        
 
@@ -211,13 +216,47 @@ namespace PageModels.UserTech
         }
 
         public void CancelBikeReservation(string bikeId)
-        {
-
+        {            
+            var reservedBikesRows = driver.FindElements(reservationListRowsBy);
+            var bikeReturnButtons = new Dictionary<string, (IWebElement cancel, IWebElement rent)>();
+            foreach (var row in reservedBikesRows)
+            {
+                bikeReturnButtons.Add(Regex.Match(row.FindElement(rentedBikeIdBy).Text, @"([0-9A-Fa-f\-]*)\son\s.*").Groups[1].Value, 
+                    (row.FindElement(cancelReservationButtonBy), row.FindElement(rentReservedButtonBy)));
+            }
+            bikeReturnButtons[bikeId].cancel.Click();
         }
 
         public void RentReservedBike(string bikeId)
         {
+            var reservedBikesRows = driver.FindElements(reservationListRowsBy);
+            var bikeReturnButtons = new Dictionary<string, (IWebElement cancel, IWebElement rent)>();
+            foreach (var row in reservedBikesRows)
+            {
+                bikeReturnButtons.Add(Regex.Match(row.FindElement(rentedBikeIdBy).Text, @"([0-9A-Fa-f\-]*)\son\s.*").Groups[1].Value,
+                    (row.FindElement(cancelReservationButtonBy), row.FindElement(rentReservedButtonBy)));
+            }
+            bikeReturnButtons[bikeId].rent.Click();
+        }
 
+        public bool IsBikeReserved(string bikeId)
+        {
+            var reservedBikesRows = driver.FindElements(reservationListRowsBy);
+            var bikeReturnButtons = new Dictionary<string, (IWebElement cancel, IWebElement rent)>();
+            try
+            {
+                foreach (var row in reservedBikesRows)
+                {
+                    var text = row.FindElement(rentedBikeIdBy).Text;
+                    bikeReturnButtons.Add(Regex.Match(text, @"([0-9A-Fa-f\-]*)\son\s.*").Groups[1].Value,
+                        (row.FindElement(cancelReservationButtonBy), row.FindElement(rentReservedButtonBy)));
+                }
+                return bikeReturnButtons.ContainsKey(bikeId);
+            }
+            catch(StaleElementReferenceException)
+            {
+                return false;
+            }
         }
     }
 }

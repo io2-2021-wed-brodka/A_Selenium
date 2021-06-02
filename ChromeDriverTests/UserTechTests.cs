@@ -37,24 +37,24 @@ namespace UserTech
         {
             var databaseSetup = new SetupMethods(backendUrl);
 
-            //await databaseSetup.RegisterUser(userUsername, userPassword);
+            await databaseSetup.RegisterUser(userUsername, userPassword);
             await databaseSetup.LoginAdmin(adminUsername, adminPassword);
-            //await databaseSetup.AddTech(techUsername, techPassword);
+            await databaseSetup.AddTech(techUsername, techPassword);
 
             stationBikes = await databaseSetup.GetAllBikes();
 
-            //var stations = await databaseSetup.AddStation(new[]{
-            //    "TestStation1 TeamA",
-            //});
+            var stations = await databaseSetup.AddStation(new[]{
+                "TestStation1 TeamA",
+            });
 
-            //foreach (var station in stations)
-            //{
-            //    stationBikes.Add(station.Name, new HashSet<string>());
-            //    for (int i = 0; i < 2; i++)
-            //    {
-            //        stationBikes[station.Name].Add((await databaseSetup.AddBike(station.Id)).Id);
-            //    }
-            //}
+            foreach (var station in stations)
+            {
+                stationBikes.Add(station.Name, new HashSet<string>());
+                for (int i = 0; i < 2; i++)
+                {
+                    stationBikes[station.Name].Add((await databaseSetup.AddBike(station.Id)).Id);
+                }
+            }
 
             Console.WriteLine("Initiated!");
         }
@@ -309,6 +309,38 @@ namespace UserTech
             var isMalfunctionOnList = malfunctions.Any(m => m.BikeId.Contains(bikeId, StringComparison.CurrentCultureIgnoreCase)
                                    && m.Description.Contains(malfunctionDescription, StringComparison.CurrentCultureIgnoreCase));
             Assert.IsTrue(isMalfunctionOnList);
+        }
+
+        //  8) jako użytkownik mogę zarezerwować/anulować rezerwację rower/u
+        //  (+odpowiednie wyświetlanie i automatyczne wygaśnięcie rezerwacji)
+        [TestMethod]
+        public void ReserveBikeTest()
+        {
+            string bikeId = stationBikes.ElementAt(1).Value.First();
+
+            var loginPage = new LoginPage(driver);
+            var homePage = loginPage.loginValidUser(userUsername, userPassword);
+            homePage.ReserveBike(bikeId);
+            var isBikeReserved = homePage.IsBikeReserved(bikeId);
+            Assert.IsTrue(isBikeReserved);
+            homePage.CancelBikeReservation(bikeId);
+        }
+
+        //  8) jako użytkownik mogę zarezerwować/anulować rezerwację rower/u
+        //  (+odpowiednie wyświetlanie i automatyczne wygaśnięcie rezerwacji)
+        [TestMethod]
+        public void CancelBikeReservationTest()
+        {
+            string bikeId = stationBikes.ElementAt(1).Value.First();
+
+            var loginPage = new LoginPage(driver);
+            var homePage = loginPage.loginValidUser(userUsername, userPassword);
+            homePage.ReserveBike(bikeId);
+            var isBikeReserved = homePage.IsBikeReserved(bikeId);
+            Assert.IsTrue(isBikeReserved);
+            homePage.CancelBikeReservation(bikeId);
+            isBikeReserved = homePage.IsBikeReserved(bikeId);
+            Assert.IsFalse(isBikeReserved);
         }
 
 

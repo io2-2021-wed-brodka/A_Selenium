@@ -139,7 +139,7 @@ namespace ChromeDriverTests
             {
                 var newStation = new
                 {
-                    Name = stationName,                    
+                    Name = stationName,
                 };
 
                 var userRegisterRequestMessage = new HttpRequestMessage
