@@ -21,7 +21,7 @@ namespace UserTech
         private static string backendUrl = "http://localhost:8080";
         private static string userTechUrl = "http://localhost:3000/";
 
-        private static string userUsername = "sampleUserTeamA";
+        private static string userUsername = "sampleUserTeamA1";
         private static string userPassword = "sampleUserPassword";
 
         private static string techUsername = "sampleTechTeamA";
@@ -59,6 +59,7 @@ namespace UserTech
             Console.WriteLine("Initiated!");
         }
 
+
         [TestInitialize]
         public void ChromeDriverInitialize()
         {
@@ -72,6 +73,7 @@ namespace UserTech
 
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(1);
             driver.Navigate().GoToUrl(userTechUrl);
+
         }
 
         // 1) Jako nowy użytkownik mogę utworzyć konto
@@ -81,7 +83,6 @@ namespace UserTech
         {
             string testUsername = Path.GetRandomFileName().Replace(".", "");
             string testPassword = Path.GetRandomFileName().Replace(".", "");
-
 
             var loginPage = new LoginPage(driver);
             var registerPage = loginPage.GoToCreateAccountPage();

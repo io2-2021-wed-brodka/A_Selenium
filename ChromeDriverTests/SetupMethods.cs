@@ -3,6 +3,7 @@ using ChromeDriverTests.Models;
 using ChromeDriverTests.Models.Bike;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -10,6 +11,8 @@ using System.Text;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using ChromeDriverTests.Models.Tech;
+using PageModels.Models;
 
 namespace ChromeDriverTests
 {
@@ -178,5 +181,55 @@ namespace ChromeDriverTests
             using var addBikeContent = addBikeResponse.Content;
             return await addBikeContent.ReadFromJsonAsync<BikeResponse>();
         }
+
+		public async Task AddMalfunction(Malfunction malfunction)
+		{
+			var malfunctionRequest = new HttpRequestMessage()
+			{
+				Method = HttpMethod.Post,
+				Content = new StringContent(
+					JsonSerializer.Serialize(malfunction, options: options), Encoding.UTF8, "application/json"
+				),
+				RequestUri = new Uri(backendUrl + "/malfunctions")
+			};
+			malfunctionRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AdminToken);
+
+			var response = await httpClient.SendAsync(malfunctionRequest);
+			response.EnsureSuccessStatusCode();
+		}
+
+		public async Task RentBike(string bikeId)
+		{
+			var rentBikeRequest = new HttpRequestMessage()
+			{
+				Method = HttpMethod.Post,
+				Content = new StringContent(
+					JsonSerializer.Serialize(new RentBikeRequest() { Id = bikeId }, options: options),
+					Encoding.UTF8, "application/json"
+				),
+				RequestUri = new Uri(backendUrl + "/bikes/rented")
+			};
+			rentBikeRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AdminToken);
+
+			var response = await httpClient.SendAsync(rentBikeRequest);
+			response.EnsureSuccessStatusCode();
+		}
+
+		public async Task ReturnBike(string bikeId, string stationId)
+		{
+			var returnBikeRequest = new HttpRequestMessage()
+			{
+				Method = HttpMethod.Post,
+				Content = new StringContent(
+					JsonSerializer.Serialize(new RentBikeRequest() { Id = bikeId }, options: options),
+					Encoding.UTF8, "application/json"
+				),
+				RequestUri = new Uri($"{backendUrl}/stations/{stationId}/bikes")
+			};
+			returnBikeRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AdminToken);
+
+			var response = await httpClient.SendAsync(returnBikeRequest);
+			response.EnsureSuccessStatusCode();
+		}
     }
 }
