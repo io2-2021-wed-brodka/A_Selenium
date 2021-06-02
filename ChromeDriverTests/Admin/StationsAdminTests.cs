@@ -57,7 +57,7 @@ namespace ChromeDriverTests.Admin
 			}
 
 			var stations = await setup.GetAllStations();
-			stationsInDB.AddRange(stations.Stations);
+			stationsInDB.AddRange(stations);
 
 			// remove empty station, so that we don't test its presence in a list (it is to be deleted)
 			stationsInDB.RemoveAll(s => s.Name.Equals(emptyTestStation));
