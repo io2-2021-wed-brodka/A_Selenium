@@ -2,7 +2,7 @@
 {
 	public class Bikes
 	{
-		public BikeResponse[] bikes { get; set; }
+        public BikeResponse[] bikes { get; set; }
 	}
     public class BikeResponse
     {
