@@ -24,6 +24,7 @@ namespace PageModels.UserTech
         // station list
         private By stationListBy = By.Id("stations");
         private By stationBy = By.Id("station");
+        private By stationNameBy = By.XPath(".//h6[1]");
 
         private By stationBikeRowBy = By.XPath(".//div[contains(@class, 'MuiCollapse-entered')]//li");
         private By stationBikeRowTextBy = By.XPath(".//div[@id='bike-id']/span");
@@ -79,7 +80,7 @@ namespace PageModels.UserTech
             var stations = element.FindElements(stationBy);
             foreach (var station in stations)
             {
-                var name = station.Text;
+                var name = station.FindElement(stationNameBy).Text;
                 station.Click();
                 ret.Add(name, station.FindElements(stationBikeRowBy).Select(e => e.FindElement(stationBikeRowTextBy).Text).ToHashSet());
                 station.Click();
@@ -95,7 +96,7 @@ namespace PageModels.UserTech
             var stations = element.FindElements(stationBy);
             foreach (var station in stations)
             {
-                var stationName = station.Text;                
+                var stationName = station.FindElement(stationNameBy).Text;
                 station.Click();
                 foreach (var stationRow in station.FindElements(stationBikeRowBy))
                 {
@@ -106,7 +107,8 @@ namespace PageModels.UserTech
             var rentButton = ret[bikeId].rentButton;                        
             rentButton.Click();
 
-            var yesButton = driver.FindElement(rentDialogYesButtonBy);                                   
+            var yesButton = driver.FindElement(rentDialogYesButtonBy);
+            Thread.Sleep(1000);
             yesButton.Click();
 
             foreach (var station in stations)
