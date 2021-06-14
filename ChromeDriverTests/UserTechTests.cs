@@ -384,6 +384,8 @@ namespace UserTech
             var bikesOnStations = homePage.ListBikesOnStations();
             bool bikeOnAnyStation = bikesOnStations.Values.Any(b => b.Contains(bikeId));
             Assert.IsFalse(bikeOnAnyStation);
+            techPage = homePage.MoveToTechTab();
+            techPage.FixBike(bikeId);
         }
 
         //  -) jako serwisant mogę naprawiać rowery (zmieniać statusy usterek)
@@ -401,6 +403,7 @@ namespace UserTech
             homePage = loginPage.loginValidUser(techUsername, techPassword);
             var techPage = homePage.MoveToTechTab();
             techPage.ApproveMalfunction(bikeId);
+            techPage.FixBike(bikeId);
             homePage = techPage.MoveToUserTab();
             var bikesOnStations = homePage.ListBikesOnStations();
             bool bikeOnAnyStation = bikesOnStations.Values.Any(b => b.Contains(bikeId));
