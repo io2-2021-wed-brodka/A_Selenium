@@ -407,7 +407,7 @@ namespace UserTech
             homePage = techPage.MoveToUserTab();
             var bikesOnStations = homePage.ListBikesOnStations();
             bool bikeOnAnyStation = bikesOnStations.Values.Any(b => b.Contains(bikeId));
-            Assert.IsFalse(bikeOnAnyStation);
+            Assert.IsTrue(bikeOnAnyStation);
         }
 
 
