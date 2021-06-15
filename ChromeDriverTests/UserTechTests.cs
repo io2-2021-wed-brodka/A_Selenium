@@ -344,6 +344,72 @@ namespace UserTech
             Assert.IsFalse(isBikeReserved);
         }
 
+        //  -) jako serwisant mogę naprawiać rowery (zmieniać statusy usterek)
+        [TestMethod]
+        public void DenyMalfunctionTest()
+        {
+            string bikeId = stationBikes.ElementAt(1).Value.First();
+            string malfunctionDescription = "broken";
+
+            var loginPage = new LoginPage(driver);
+            var homePage = loginPage.loginValidUser(userUsername, userPassword);
+            var rentedStationName = homePage.RentBike(bikeId);
+            homePage.ReportMalfunction(bikeId, malfunctionDescription, rentedStationName);
+            loginPage = homePage.LogOut();
+            homePage = loginPage.loginValidUser(techUsername, techPassword);
+            var techPage = homePage.MoveToTechTab();
+            techPage.DenyMalfunction(bikeId);
+            var malfunctions = techPage.ListAllMalfunctions();
+            var malfunctionStillExists = malfunctions.Any(m => m.BikeId == bikeId);
+            Assert.IsFalse(malfunctionStillExists);
+
+        }
+
+        //  -) jako serwisant mogę naprawiać rowery (zmieniać statusy usterek)
+        [TestMethod]
+        public void ApproveMalfunctionTest()
+        {
+            string bikeId = stationBikes.ElementAt(1).Value.First();
+            string malfunctionDescription = "broken";
+
+            var loginPage = new LoginPage(driver);
+            var homePage = loginPage.loginValidUser(userUsername, userPassword);
+            var rentedStationName = homePage.RentBike(bikeId);
+            homePage.ReportMalfunction(bikeId, malfunctionDescription, rentedStationName);
+            loginPage = homePage.LogOut();
+            homePage = loginPage.loginValidUser(techUsername, techPassword);
+            var techPage = homePage.MoveToTechTab();
+            techPage.ApproveMalfunction(bikeId);
+            homePage = techPage.MoveToUserTab();
+            var bikesOnStations = homePage.ListBikesOnStations();
+            bool bikeOnAnyStation = bikesOnStations.Values.Any(b => b.Contains(bikeId));
+            Assert.IsFalse(bikeOnAnyStation);
+            techPage = homePage.MoveToTechTab();
+            techPage.FixBike(bikeId);
+        }
+
+        //  -) jako serwisant mogę naprawiać rowery (zmieniać statusy usterek)
+        [TestMethod]
+        public void FixBikeTest()
+        {
+            string bikeId = stationBikes.ElementAt(1).Value.First();
+            string malfunctionDescription = "broken";
+
+            var loginPage = new LoginPage(driver);
+            var homePage = loginPage.loginValidUser(userUsername, userPassword);
+            var rentedStationName = homePage.RentBike(bikeId);
+            homePage.ReportMalfunction(bikeId, malfunctionDescription, rentedStationName);
+            loginPage = homePage.LogOut();
+            homePage = loginPage.loginValidUser(techUsername, techPassword);
+            var techPage = homePage.MoveToTechTab();
+            techPage.ApproveMalfunction(bikeId);
+            techPage.FixBike(bikeId);
+            homePage = techPage.MoveToUserTab();
+            var bikesOnStations = homePage.ListBikesOnStations();
+            bool bikeOnAnyStation = bikesOnStations.Values.Any(b => b.Contains(bikeId));
+            Assert.IsTrue(bikeOnAnyStation);
+        }
+
 
         [TestCleanup]
         public void ChromeDriverCleanup()

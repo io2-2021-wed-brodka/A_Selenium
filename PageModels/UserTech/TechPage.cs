@@ -150,5 +150,32 @@ namespace PageModels.UserTech
                 Description = m.FindElement(By.Id("malfunction-description")).Text,
             }).ToList();
         }
+
+        public void ApproveMalfunction(string id)
+        {
+            var denyMalfunctions =
+                MalfunctionsTableRow.ToDictionary(k => k.FindElement(By.Id("bike-id")).Text,
+                    v => v.FindElement(By.Id("approve-button")));
+
+            denyMalfunctions[id].Click();
+        }
+
+        public void DenyMalfunction(string id)
+        {
+            var denyMalfunctions = 
+                MalfunctionsTableRow.ToDictionary(k => k.FindElement(By.Id("bike-id")).Text, 
+                    v => v.FindElement(By.Id("deny-button")));
+
+            denyMalfunctions[id].Click();            
+        }
+
+        public void FixBike(string id)
+        {
+            var denyMalfunctions =
+                MalfunctionsTableRow.ToDictionary(k => k.FindElement(By.Id("bike-id")).Text,
+                    v => v.FindElement(By.Id("fix-button")));
+
+            denyMalfunctions[id].Click();
+        }
     }
 }
