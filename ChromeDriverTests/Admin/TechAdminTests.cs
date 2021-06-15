@@ -27,9 +27,10 @@ namespace ChromeDriverTests.Admin
 
 			var techName = techsPage.ListTechs().First(tech => tech.Equals(deleteTechName));
 			techsPage.DeleteTech(techName);
+			Thread.Sleep(200);
 
 			bool techVisible = techsPage.ListTechs().Any(tech => tech.Equals(techName));
-			Assert.IsTrue(techVisible);
+			Assert.IsFalse(techVisible);
 		}
 
 		[TestMethod]
